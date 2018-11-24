@@ -36,7 +36,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * This class encapsulates the properties and functionality of the Map view.
@@ -59,12 +61,25 @@ public class MapFragmentView {
     }
 
     private int ratingToColor(double rating) {
-        int alpha = 255;
+        int orange = 0xffffa801;
+        int red = 0xffff5e57;
+        int green = 0xff0be881;
+
+        if (rating > 0.5) {
+            int diff = red - orange;
+            int col = (int)(orange + diff * (rating - 0.5) / 0.5);
+            return col;
+        } else {
+            int diff = orange - green;
+            int col = (int)(green + diff * (rating) / 0.5);
+            return col;
+        }
+        /*int alpha = 255;
         int blue = 0;
-        int green = Math.round(((1 << 8) - 1) * (float)(1 - rating));
+        int green = Math.round(((1 << 8) - 1) * (float)Math.pow(1 - rating, 2));
         int red = Math.round(((1 << 8) - 1) * (float)(rating));
-        int result = (alpha << 24) + (red << 16) + (green << 8) + blue;
-        return result;
+        int result = (alpha << 24) + (red << 16) + (green << 8) + blue; */
+        //return result;
 
     }
 
@@ -78,6 +93,47 @@ public class MapFragmentView {
         mapPolyline.setLineWidth(10);
         mapPolyline.setZIndex(100);
         map.getMap().addMapObject(mapPolyline);
+    }
+
+    private void drawFile(String filename) {
+        //drawLine(m_mapFragment, 60.184881, 24.832714, 60.1866719, 25.8254933, 0.7);
+        try {
+            InputStreamReader is = new InputStreamReader(m_mapFragment
+                    .getActivity()
+                    .getAssets()
+                    .open(filename));
+
+            BufferedReader reader = new BufferedReader(is);
+
+            reader.readLine();
+            String line;
+            double lastLat = 0, lastLon = 0;
+            boolean wasLast = false;
+            double average = 0;
+            double alpha = 1;
+
+            while ((line = reader.readLine()) != null) {
+                Log.i("reading file", line);
+                if (Math.random() < 0.9) {
+                    String[] values = line.split(",");
+                    double[] parsed = new double[values.length];
+                    for (int i = 0; i < values.length; i++) {
+                        parsed[i] = Double.valueOf(values[i]);
+                        Log.i("Parsed a value", "" + parsed[i]);
+                    }
+                    average = average * (1 - alpha) + alpha * parsed[2];
+                    if (wasLast) {
+                        drawLine(m_mapFragment, lastLat, lastLon, parsed[0], parsed[1], average);
+                    }
+                    wasLast = true;
+                    lastLat = parsed[0];
+                    lastLon = parsed[1];
+                }
+            }
+        } catch (Exception e)
+        {
+            Log.d("reading file", "didn't work");
+        }
     }
 
     private void initMapFragment() {
@@ -115,6 +171,12 @@ public class MapFragmentView {
                      */
                         m_map = m_mapFragment.getMap();
 
+                        List<String> schemes = m_mapFragment.getMap().getMapSchemes();
+                        for (String s : schemes) {
+                            Log.i("Scheme", s);
+                        }
+                        m_map.setMapScheme(schemes.get(2));
+
                         /*
                          * Map center can be set to a desired location at this point.
                          * It also can be set to the current location ,which needs to be delivered by the PositioningManager.
@@ -133,31 +195,10 @@ public class MapFragmentView {
                                 Toast.LENGTH_LONG).show();
                     }
 
+                    drawFile("out.csv");
+                    drawFile("out2.csv");
 
-                    drawLine(m_mapFragment, 60.184881, 24.832714, 60.1866719, 25.8254933, 0.7);
-
-
-                    /*try {
-
-                        InputStreamReader is = new InputStreamReader(m_mapFragment
-                                .getActivity()
-                                .getAssets()
-                                .open("filename.csv"));
-
-                        BufferedReader reader = new BufferedReader(is);
-
-                        reader.readLine();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-
-                        }
-                    } catch (Exception e)
-                    {
-                        // nothing
-                    }
-                    */
                 }
-
 
             });
         }
