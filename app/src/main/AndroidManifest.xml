@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.vladsobol.bavus">
 
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -24,20 +23,26 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.here.android.maps.appid" android:value="8vkcuNnIU9SPLMRdmWFO"/>
-        <meta-data android:name="com.here.android.maps.apptoken" android:value="D5uHLgG-WkXMSWju4Knogw"/>
-
+        <meta-data
+            android:name="com.here.android.maps.appid"
+            android:value="8vkcuNnIU9SPLMRdmWFO" />
+        <meta-data
+            android:name="com.here.android.maps.apptoken"
+            android:value="D5uHLgG-WkXMSWju4Knogw" />
         <meta-data
             android:name="INTENT_NAME"
             android:value="intent" />
+
         <service
             android:name="com.here.android.mpa.service.MapService"
-            android:label="label"
-            android:exported="false">
+            android:exported="false"
+            android:label="label">
             <intent-filter>
-                <action android:name="inner intent"></action>
+                <action android:name="inner intent" />
             </intent-filter>
         </service>
+
+        <activity android:name=".GraphActivity"></activity>
     </application>
 
 </manifest>
