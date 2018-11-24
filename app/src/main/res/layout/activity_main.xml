@@ -26,4 +26,10 @@
         android:layout_margin="16dp" />
         -->
 
+    <Button
+        android:id="@+id/btnShowGraph"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Graph" />
+
 </android.support.constraint.ConstraintLayout>

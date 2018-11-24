@@ -195,8 +195,8 @@ public class MapFragmentView {
                                 Toast.LENGTH_LONG).show();
                     }
 
-                    drawFile("out.csv");
-                    drawFile("out2.csv");
+                    //drawFile("out.csv");
+                    //drawFile("out2.csv");
 
                 }
 
