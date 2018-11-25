@@ -55,8 +55,7 @@ public class GraphActivity extends AppCompatActivity {
         mChart.setScaleEnabled(true);
         mChart.setDrawGridBackground(false);
         mChart.setPinchZoom(true);
-        mChart.setBackgroundColor(Color.LTGRAY);
-
+        mChart.setBackgroundColor(Color.WHITE);
 
         //set Data
         LineData data = new LineData();
@@ -89,7 +88,7 @@ public class GraphActivity extends AppCompatActivity {
         try {
             InputStreamReader is = new InputStreamReader(this
                     .getAssets()
-                    .open("data-2.csv"));
+                    .open("data.csv"));
 
             mReader = new BufferedReader(is);
             mReader.readLine();
@@ -115,7 +114,7 @@ public class GraphActivity extends AppCompatActivity {
                         }
                     });
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(30);
                     } catch (InterruptedException e) {
                         //manage Error ...
                     }
@@ -138,12 +137,12 @@ public class GraphActivity extends AppCompatActivity {
             try {
 
                 String line = mReader.readLine();
-                String[] values = line.split(",");
-                double[] parsed = new double[values.length];
-                for (int i = 0; i < values.length; i++) {
-                    parsed[i] = Double.valueOf(values[i]);
+                float val = Float.valueOf(line.split(",")[2]);
+                if (val < 0) {
+                    return;
                 }
-                data.addEntry(new Entry(set.getEntryCount(), (float)parsed[2]), 0);
+
+                data.addEntry(new Entry(set.getEntryCount(), val), 0);
                 mChart.notifyDataSetChanged();
                 mChart.setVisibleXRange(0,100);
                 mChart.moveViewToX(data.getXMax());//getXValAcount()
@@ -165,7 +164,7 @@ public class GraphActivity extends AppCompatActivity {
         set.setAxisDependency(YAxis.AxisDependency.LEFT); //this one
         set.setColor(ColorTemplate.getHoloBlue());
         set.setCircleColor(ColorTemplate.getHoloBlue());
-        set.setLineWidth(2f);
+        set.setLineWidth(3f);
         set.setCircleSize(4f);
         set.setFillAlpha(65);
         set.setFillColor(ColorTemplate.getHoloBlue());
