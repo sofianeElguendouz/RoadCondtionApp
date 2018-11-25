@@ -61,17 +61,16 @@ public class MapFragmentView {
     }
 
     private int ratingToColor(double rating) {
-        int orange = 0xffffa801;
-        int red = 0xffff5e57;
-        int green = 0xff0be881;
+        int mx = (1 << 8) - 1;
+        int target = 200;
 
         if (rating > 0.5) {
-            int diff = red - orange;
-            int col = (int)(orange + diff * (rating - 0.5) / 0.5);
+            int green = (int)(target * (1 - (rating - 0.5) / 0.5));
+            int col = ((mx) << 24) + (target << 16) + (green << 8);
             return col;
         } else {
-            int diff = orange - green;
-            int col = (int)(green + diff * (rating) / 0.5);
+            int red = (int)(target * rating);
+            int col = ((mx) << 24) + (red << 16) + (target << 8);
             return col;
         }
         /*int alpha = 255;
@@ -113,19 +112,23 @@ public class MapFragmentView {
             double alpha = 1;
 
             while ((line = reader.readLine()) != null) {
-                Log.i("reading file", line);
-                if (Math.random() < 0.9) {
-                    String[] values = line.split(",");
-                    double[] parsed = new double[values.length];
-                    for (int i = 0; i < values.length; i++) {
-                        parsed[i] = Double.valueOf(values[i]);
-                        Log.i("Parsed a value", "" + parsed[i]);
-                    }
+                String[] values = line.split(",");
+                double[] parsed = new double[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    parsed[i] = Double.valueOf(values[i]);
+                }
+                if (parsed[2] < 0) {
+                    Log.i("while", "a less than zero");
+                    wasLast = false;
+                } else {
                     average = average * (1 - alpha) + alpha * parsed[2];
                     if (wasLast) {
                         drawLine(m_mapFragment, lastLat, lastLon, parsed[0], parsed[1], average);
                     }
-                    wasLast = true;
+                    if (!wasLast) {
+                        wasLast = true;
+                        Log.i("while", "setting was last to true");
+                    }
                     lastLat = parsed[0];
                     lastLon = parsed[1];
                 }
@@ -172,9 +175,6 @@ public class MapFragmentView {
                         m_map = m_mapFragment.getMap();
 
                         List<String> schemes = m_mapFragment.getMap().getMapSchemes();
-                        for (String s : schemes) {
-                            Log.i("Scheme", s);
-                        }
                         m_map.setMapScheme(schemes.get(2));
 
                         /*
@@ -196,8 +196,7 @@ public class MapFragmentView {
                     }
 
                     //drawFile("out.csv");
-                    //drawFile("out2.csv");
-
+                    drawFile("data.csv");
                 }
 
             });
