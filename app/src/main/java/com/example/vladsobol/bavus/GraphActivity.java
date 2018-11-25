@@ -19,10 +19,14 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class GraphActivity extends AppCompatActivity {
 
     private RelativeLayout mainLayout;
     private LineChart mChart;
+    private BufferedReader mReader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +79,24 @@ public class GraphActivity extends AppCompatActivity {
 
         YAxis yl = mChart.getAxisLeft();
         yl.setTextColor(Color.WHITE);
-        yl.setAxisMaximum(120f);
+        yl.setAxisMaximum(1f);
         yl.setDrawGridLines(true);
 
 
         YAxis yl2 = mChart.getAxisRight();
         yl2.setEnabled(false);
+
+        try {
+            InputStreamReader is = new InputStreamReader(this
+                    .getAssets()
+                    .open("data-2.csv"));
+
+            mReader = new BufferedReader(is);
+            mReader.readLine();
+        } catch (Exception e) {
+
+        }
+
 
     }
 
@@ -91,7 +107,7 @@ public class GraphActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<100; i++){
+                for (int i=0; i<14837; i++){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -99,7 +115,7 @@ public class GraphActivity extends AppCompatActivity {
                         }
                     });
                     try {
-                        Thread.sleep(600);
+                        Thread.sleep(50);
                     } catch (InterruptedException e) {
                         //manage Error ...
                     }
@@ -118,11 +134,27 @@ public class GraphActivity extends AppCompatActivity {
                 set = createSet();
                 data.addDataSet(set);
             }
-            data.addEntry(new Entry(set.getEntryCount(), (float) (Math.random() * 75) + 60f), 0);
-            mChart.notifyDataSetChanged();
-            mChart.setVisibleXRange(0,6);
-            mChart.moveViewToX(data.getXMax() - 7);//getXValAcount()
-            mChart.invalidate();
+
+            try {
+
+                String line = mReader.readLine();
+                String[] values = line.split(",");
+                double[] parsed = new double[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    parsed[i] = Double.valueOf(values[i]);
+                }
+                data.addEntry(new Entry(set.getEntryCount(), (float)parsed[2]), 0);
+                mChart.notifyDataSetChanged();
+                mChart.setVisibleXRange(0,100);
+                mChart.moveViewToX(data.getXMax());//getXValAcount()
+                mChart.invalidate();
+
+                //data.addEntry(new Entry(set.getEntryCount(), (float)parsed[2]), 0);
+
+
+            } catch (Exception e) {
+
+            }
         }
     }
 
