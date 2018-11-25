@@ -1,0 +1,158 @@
+<html>
+  <head>
+  <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+  <script src="http://js.api.here.com/v3/3.0/mapsjs-core.js"
+  type="text/javascript" charset="utf-8"></script>
+  <script src="http://js.api.here.com/v3/3.0/mapsjs-service.js"
+  type="text/javascript" charset="utf-8"></script>
+  <script src="http://js.api.here.com/v3/3.0/mapsjs-mapevents.js"
+     type="text/javascript" charset="utf-8"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">,
+  </head>
+  <body style="padding: 0;">
+  <div style="width: 100%; height: 100%; margin: 0; padding: 0; float: left;" id="mapContainer"></div>
+  <div style="position: absolute; top: 30px; right:30px; width: 25%; height: 25%; float: right;">
+  <div class="panel panel-default">
+      <div class="panel-heading">
+      <h2 style="margin: 5px"> Road service required: </h2>
+      </div>
+      <div class="panel-body">
+      <p style="font-size: 24; margin: 5px">25 Civic Center dr - pot hole</p>
+      <p style="font-size: 24; margin: 5px">14 Main st - skid resistance low</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Initialize the platform object:
+    var platform = new H.service.Platform({
+    'app_id': '8vkcuNnIU9SPLMRdmWFO',
+    'app_code': 'D5uHLgG-WkXMSWju4Knogw'
+    });
+
+    var svgMarkupP = '<svg width="94" height="54" ' +
+          'xmlns="http://www.w3.org/2000/svg">' +
+          '<rect stroke="white" fill="#1b468d" x="1" y="1" width="90" ' +
+          'height="40" /><text x="45" y="30" font-size="22pt" ' +
+          'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
+          'fill="white">Hole</text></svg>';
+
+    var svgMarkupS = '<svg width="94" height="54" ' +
+          'xmlns="http://www.w3.org/2000/svg">' +
+          '<rect stroke="white" fill="#1b468d" x="1" y="1" width="90" ' +
+          'height="40" /><text x="45" y="30" font-size="22pt" ' +
+          'font-family="Arial" font-weight="bold" text-anchor="middle" ' +
+          'fill="white">Skid</text></svg>';
+
+    // Obtain the default map types from the platform object
+    var maptypes = platform.createDefaultLayers();
+
+    // Instantiate (and display) a map object:
+    var coords = { lat: 60.184881, lng: 24.832714 };
+    
+    var map = new H.Map(
+    document.getElementById('mapContainer'),
+    // Enable the event system on the map instance:
+    maptypes.normal.map,
+    {
+      zoom: 16,
+      center: { lat: 60.184881, lng: 24.832714 }
+    });
+
+    var mapEvents = new H.mapevents.MapEvents(map);
+    // Instantiate the default behavior, providing the mapEvents object:
+    var behavior = new H.mapevents.Behavior(mapEvents);
+
+    function addIcon(map, sicon, lat, lon) {
+        var coords = {lat : lat, lng : lon};
+        var micon = new H.map.Icon(sicon);
+        var marker = new H.map.Marker(coords, {icon: micon});
+        // Add the marker to the map and center the map at the location of the marker:
+        map.addObject(marker);
+    }
+    map.setCenter(coords);
+
+    function ratingToColor(rating) {
+        var mx = (1 << 8) - 1;
+        var target = 200;
+
+        if (rating > 0.5) {
+            var green = Math.round(target * (1 - (rating - 0.5) / 0.5));
+            return 'rgba(' + (target) + ', ' + (green) + ', 0, 1)';
+        } else {
+            var red = Math.round(target * rating);
+            return 'rgba(' + (red) + ', ' + (target) + ', 0, 1)';
+        }
+    }
+
+    function drawLine(map, lat1, lon1, lat2, lon2, rating) {
+        var coords1 = { lat: lat1, lng: lon1 };
+        var coords2 = { lat: lat2, lng: lon2 };
+
+        var linestring = new H.geo.LineString();
+        linestring.pushPoint(coords1);
+        linestring.pushPoint(coords2);
+
+        var polyline = new H.map.Polyline(linestring, { style: { lineWidth: 10, strokeColor: ratingToColor(rating) } });
+        // Add the polyline to the map:
+        map.addObject(polyline);
+    }
+
+    var openFile = function(event) {
+        var input = event.target;
+
+        var reader = new FileReader();
+        reader.onload = function(){
+          var text = reader.result;
+          var node = document.getElementById('output');
+          node.innerText = text;
+          console.log(reader.result.substring(0, 200));
+        };
+        reader.readAsText(input.files[0]);
+    };
+
+    $.ajax({
+        type: "GET",
+        url: "https://raw.githubusercontent.com/bAvus/RoadCondtionApp/master/app/src/main/assets/data.csv",
+        dataType: "text",
+        success: function(data) {processData(data);}
+     });
+
+    function processData(allText) {
+        var record_num = 3;  // or however many elements there are in each row
+        var allTextLines = allText.split(/\r\n|\n/);
+        var entries = allTextLines[0].split(',');
+        var headers = allTextLines[0].split(',');
+        var lines = [];
+        var last_lat = 0;
+        var last_lon = 0;
+        var was_last = false;
+        
+        for (var i=1; i<allTextLines.length; i++) {
+            var data = allTextLines[i].split(',');
+            if (data.length == headers.length) {
+                var tarr = [];
+                var lat = data[0];
+                var lon = data[1];
+                var score = data[2];
+                if (score < 0) {
+                    was_last = false;
+                } else {
+                    if (was_last) {
+                        drawLine(map, last_lat, last_lon, lat, lon, score)
+                    }
+                    was_last = true;
+                    last_lat = lat;
+                    last_lon = lon;
+                }
+            }
+        }
+
+        addIcon(map, svgMarkupP, 60.174199, 24.805304)
+        addIcon(map, svgMarkupS, 60.180230, 24.824829)
+    // alert(lines);
+    // alert(lines);
+    }
+  </script>
+  </body>
+</html>
