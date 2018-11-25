@@ -16,11 +16,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
 }
 
 repositories {
     flatDir {
         dirs 'libs'
+    }
+
+    maven {
+        url 'https://jitpack.io'
     }
 }
 
@@ -37,5 +53,8 @@ dependencies {
     compile files('libs/fleetboard-sdk-release.jar')
 
     implementation 'com.jjoe64:graphview:4.2.2'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    implementation "com.opencsv:opencsv:4.1"
 
 }
