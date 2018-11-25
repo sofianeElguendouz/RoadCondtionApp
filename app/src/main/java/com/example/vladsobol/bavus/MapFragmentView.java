@@ -103,7 +103,6 @@ public class MapFragmentView {
                     .open(filename));
 
             BufferedReader reader = new BufferedReader(is);
-
             reader.readLine();
             String line;
             double lastLat = 0, lastLon = 0;
