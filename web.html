@@ -36,10 +36,6 @@
           <span style="height:1.15rem;width:1.15rem;background-color:orange;border-radius: 50%;display:inline-block;"></span>
           skid resistance low</li>
       </ul>
-      <!-- <p style="font-size: 22; margin: 5px"></p>
-      <p style="font-size: 22; margin: 5px"></p>
-      </div> -->
-    <!-- </div> -->
   </div>
   <script>
     // Initialize the platform object:
@@ -130,10 +126,12 @@
     };
 
     $.ajax({
+      
         type: "GET",
         url: "https://raw.githubusercontent.com/bAvus/RoadCondtionApp/master/app/src/main/assets/data.csv",
         dataType: "text",
         success: function(data) {processData(data);}
+      
      });
 
     function processData(allText) {
@@ -168,8 +166,6 @@
 
         addIcon(map, svgMarkupP, 60.174199, 24.805304)
         addIcon(map, svgMarkupS, 60.180230, 24.824829)
-    // alert(lines);
-    // alert(lines);
     }
   </script>
   </body>
